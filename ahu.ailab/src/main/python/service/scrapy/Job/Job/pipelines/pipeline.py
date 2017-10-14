@@ -3,7 +3,7 @@ __author__ = 'liuyang'
 
 from twisted.enterprise import adbapi
 from mysqlDB import myaqlSave
-from ..allitems.jobitems import AllJobs
+#from ..allitems.jobitems import AllJob
 from ..allitems.leaderitems import AllLeaders
 
 class JobPipeline(object):
@@ -21,5 +21,4 @@ class JobPipeline(object):
     def process_item(self, item, spider):
         if isinstance(item, AllLeaders):
             self.dbpool.runInteraction(myaqlSave().insertleaders, item)
-        if isinstance(item, AllJobs):
-            self.dbpool.runInteraction(myaqlSave().insertjobs, item)
+
