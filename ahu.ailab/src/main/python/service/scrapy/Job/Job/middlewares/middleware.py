@@ -10,7 +10,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 dcap = dict(DesiredCapabilities.PHANTOMJS)
 dcap["phantomjs.page.settings.resourceTimeout"] = 30
 
-driver = webdriver.PhantomJS(executable_path='D:/py_spider/Lib/site-packages/phantomjs-1.9.7-windows/phantomjs.exe')
+driver = webdriver.PhantomJS(executable_path='D:/py_spider/phantomjs-2.1.1-windows/bin/phantomjs.exe')
 # driver = webdriver.Chrome()
 driver.maximize_window()
 

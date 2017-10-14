@@ -4,6 +4,7 @@ __author__ = 'Robin'
 
 
 import os
+from scrapy import cmdline
 
 def run(name):
     if isinstance(name, str):
@@ -13,13 +14,13 @@ def run(name):
 
 def main():
 
-    run('crawlITERjobs')
+    #run('crawlITERjobs')
 
-    # run('crawlOECDjobs')
+    #run('crawlOECDjobs')
 
-    # run('crawlWHOjobs')
+    #run('crawlWHOjobs')
     
-    # run('crawlWIPOjobs')
+    run('crawlWIPOjobs')
 
     # run('crawUNESCOjobs')
 
