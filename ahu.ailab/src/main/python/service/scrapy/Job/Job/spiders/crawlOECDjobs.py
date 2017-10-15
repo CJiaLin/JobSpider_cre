@@ -62,6 +62,8 @@ class OECDJobSpider(scrapy.Spider):
                 except:
                     break
 
+            self.depose()
+
             '''click_text = u"Policy Analysts"
             self.driver.find_element_by_partial_link_text(click_text).click()
             item = self.pars(self.driver.page_source)

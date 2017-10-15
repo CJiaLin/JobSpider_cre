@@ -4,7 +4,7 @@ from selenium import webdriver
 from scrapy.http import HtmlResponse
 from lxml import etree
 import time
-import BeautifulSoup
+from bs4 import BeautifulSoup
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 dcap = dict(DesiredCapabilities.PHANTOMJS)

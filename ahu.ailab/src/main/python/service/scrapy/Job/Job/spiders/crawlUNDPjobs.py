@@ -118,23 +118,52 @@ class UNDPjobSpider(scrapy.Spider):
             self._crawlnoid(job,item,work_or_PostLevel)
         except:
             logger.warning("未能爬取到页面%s的相关数据"%response.url)
+
         yield item
 
     def _crawlnoid(self,job,item,work_or_PostLevel):
-    
+
         '''
         对第一种形式页面进行字段解析
         '''
-
         item["work"] = work_or_PostLevel
         #TODO  提取基本信息
-        trs1 = job.xpath('//div[@id="content-main"]/table[0]/tr')
-        trs2 = job.xpath('//div[@id="content-main"]/table[1]/tr')
+        trs1 = job.xpath('//div[@id="content-main"]/table[1]//tr')
+        #trs2 = job.xpath('//div[@id="content-main"]/table[1]/tr')
 
+        item['work'] = trs1.xpath('td/h3/text()').extract()[0]
         for i in trs1:
-            text = i.xpath('td/strong/text()')
+            try:
+                tag = i.xpath('td/strong/text()').extract()
+                if tag != []:
+                    tag = tag[0]
+                else:
+                    continue
 
-        for tr in trs2:
+                text = i.xpath('td[2]/text()').extract()
+                if text != []:
+                    text = text[0]
+                else:
+                    continue
+
+                if 'Location' in tag:
+                    item['Location'] = text
+                elif 'Application Deadline' in tag:
+                    item['ApplicationDeadline'] = text
+                #elif 'Additional Category' in tag:
+                    #item['type'] = text
+                elif 'Type of Contract' in tag:
+                    item['TypeofContract'] = text
+                elif 'Post Level' in tag:
+                    item['PostLevel'] = text
+                #elif 'Languages Required' in tag:
+                    #item['language'] = text
+                elif 'Duration of Initial Contract' in tag:
+                    item['contracttime'] = text
+            except:
+                continue
+
+        '''for tr in trs2:
             ziduanming = tr.xpath('td[1]/strong/text()').extract()
             if ziduanming:
                 if ziduanming[0] in self.noidziduan:
@@ -144,18 +173,126 @@ class UNDPjobSpider(scrapy.Spider):
                             item[StrUtil.delWhite(ziduanming[0].strip(':'))] = re.sub('\W',' ',StrUtil.delWhite(context[0]))
                         else:
                             item[StrUtil.delWhite(ziduanming[0].strip(':'))] = StrUtil.delMoreSpace(StrUtil.delWhiteSpace(context[0]))
-
+        '''
 
         # TODO  提取技能经历等数据
-        skilldatas = job.xpath('//div[@id="content-main"]/table[2]/tr')
+        skilldatas = job.xpath('//div[@id="content-main"]/table[2]//tr')
 
-        for i in range(0,len(skilldatas),1):
+        count = len(skilldatas)
+        i = 0
+        while i < count:
+            try:
+                tag = skilldatas[i].xpath('td[@class="field"]/h5/text()').extract()[0]
+            except:
+                i += 1
+                continue
+            i += 1
+            if 'Background' in tag:
+                text = ' '.join(skilldatas[i].xpath('td[@class="text"]').xpath('string(.)').extract()[0].split())
+                i += 1
+                item['description'] = text
+            elif 'Responsibilities' in tag:
+                text = ' '.join(skilldatas[i].xpath('td[@class="text"]').xpath('string(.)').extract()[0].split())
+                i += 1
+                item['responsibilities'] = text
+            elif 'Competencies' in tag:
+                text = ' '.join(skilldatas[i].xpath('td[@class="text"]').xpath('string(.)').extract()[0].split())
+                i += 1
+                item['skill'] += text
+            elif 'Skills and Experience' in tag:
+                try:
+                    text = ' '.join(skilldatas[i].xpath('td[@class="text"]').xpath('string(.)').extract()[0].split())
+                    i += 1
+                    info = []
+                except:
+                    print '获取信息错误2'
+
+                if 'Education' in text:
+                    info = text.split('Education')
+                    down = ''
+                    length = len(info)
+                    for x in info[1:]:
+                        down += x
+                    info[1] = down
+                    while length > 2:
+                        info.pop()
+                        length -= 1
+                elif 'enrolment' in text:
+                    info[0] = text.split('enrolment')[-1]
+                    if 'skills' in text:
+                        info1 = info[-1].split('skills')
+                        item['education'] = info1[0]
+                        down = ''
+                        length = len(info1)
+                        for x in info1[1:]:
+                            down += x
+                        info1[1] = down
+                        while length > 2:
+                            info1.pop()
+                            length -= 1
+                        if 'eligibility' in info1[-1]:
+                            info2 = info1[-1].split('eligibility')
+                            item['skill'] = info2[0]
+                            item['addition'] = info2[-1]
+                        break
+                    else:
+                        info[0] = text
+
+                if 'Experience' in info[-1]:
+                    info1 = info[-1].split('Experience')
+                    item['education'] = info1[0]
+                    down = ''
+                    length = len(info1)
+                    for x in info1[1:]:
+                        down += x
+                    info1[1] = down
+                    while length > 2:
+                        info1.pop()
+                        length -= 1
+                elif 'Expérience' in info[-1]:
+                    info1 = info[-1].split('Expérience')
+                    item['education'] = info1[0]
+                    down = ''
+                    length = len(info1)
+                    for x in info1[1:]:
+                        down += x
+                    info1[1] = down
+                    while length > 2:
+                        info1.pop()
+                        length -= 1
+                else:
+                    info1 = info
+
+                if 'Language' in info1[-1]:
+                    info2 = info1[-1].split('Language requirements')
+                    item['experience'] = info2[0]
+                    down = ''
+                    length = len(info1)
+                    for x in info2[1:]:
+                        down += x
+                    info2[1] = down
+                    while length > 2:
+                        info2.pop()
+                        length -= 1
+                else:
+                    info2 = info1
+
+                if 'Consultant' in info2[-1]:
+                    info3 = info2[-1].split('Consultant')
+                    item['language'] = info3[0]
+                    item['addition'] = info3[-1]
+                else:
+                    info3 = info2
+
+                item['addition'] = info3[-1]
+
+        '''for i in range(0,len(skilldatas),1):
             name = skilldatas[i].xpath('td[@class="field"]/h5/text()').extract()
             if name:
                 if name[0] in self.textnfo_noid:
                     data = skilldatas[i+1].xpath('td[@class="text"]')
                     info = data.xpath('string(.)').extract()
-                    item[StrUtil.delWhite(name[0])] = StrUtil.delMoreSpace(StrUtil.delWhiteSpace(info[0]))
+                    item[StrUtil.delWhite(name[0])] = StrUtil.delMoreSpace(StrUtil.delWhiteSpace(info[0]))'''
 
 
     def _crawlhaveid(self,response):
@@ -181,10 +318,89 @@ class UNDPjobSpider(scrapy.Spider):
         selector = scrapy.Selector(response)
         table = selector.xpath("//table[@id='ACE_$ICField30$0']/tbody/tr/td")
         tds = [t.strip() for t in table.xpath("string(.)").extract()]
+        count = len(tds)
+        i = 0
+        while i < count:
+            if 'Title' in tds[i]:
+                i += 1
+                j = i
+                for td in tds[j:]:
+                    i += 1
+                    if td:
+                        item['work'] = td
+                        break
+            elif 'Vacancy End Date' in tds[i]:
+                i += 1
+                j = i
+                for td in tds[j:]:
+                    i += 1
+                    if re.match('.*\d*/\d*/\d*.*',td):
+                        item['ApplicationDeadline'] = td
+                        break
+            elif 'Duty Station' in tds[i]:
+                i += 1
+                j = i
+                for td in tds[j:]:
+                    i += 1
+                    if td:
+                        item['Location'] = td
+                        break
+            elif 'Education & Work Experience' in tds[i]:
+                i += 1
+                j = i
+                for td in tds[j:]:
+                    i += 1
+                    if td:
+                        content = re.match(r'(.*)-(.*)', td)
+                        item['education'] = content.group(1)
+                        item['experience'] = content.group(2)
+                        break
+            elif 'Languages' in tds[i]:
+                i += 1
+                j = i
+                for td in tds[j:]:
+                    i += 1
+                    if td:
+                        if 'Grade' in td:
+                            break
+                        else:
+                            item['language'] += td
+            elif 'Grade' in tds[i]:
+                i += 1
+                j = i
+                for td in tds[j:]:
+                    i +=1
+                    if td:
+                        item['PostLevel'] = td
+                        break
+            elif 'Contract Duration' in tds[i]:
+                i += 1
+                j = i
+                for td in tds[j:]:
+                    i += 1
+                    if td:
+                        item['contracttime'] = td
+                        break
+            else:
+                i += 1
 
         table2 = selector.xpath("//table[@id='ACE_HRS_JO_PST_DSCR$0']/tbody/tr/td")
         tds2 = [t.strip() for t in table2.xpath("string(.)").extract()]
-        tds.extend(tds2)
+        count = len(tds2)
+        i = 0
+        while i < count:
+            if 'Duties and Responsibilities' in tds2[i]:
+                i += 1
+                j = i
+                for td in tds2[j:]:
+                    i += 1
+                    if td:
+                        item['responsibilities'] = td
+                        break
+            else:
+                i += 1
+
+        '''tds.extend(tds2)
         tds.append('Disclaimer')
         temp = []
         key = 'default'
@@ -207,27 +423,8 @@ class UNDPjobSpider(scrapy.Spider):
 
             self.items.append(item)
         except:
-            logger.error('parser error!')
-        
+            logger.error('parser error!')'''
 
-    '''def setitem_haveid(self,response):
-
-        # 初始化第二种页面全部字段
-
-        item = UNDPJobDataItem2()
-        item["englishname"] = "UNDP"
-        item["chinesename"] = "联合国开发计划署"
-        item["incontinent"] = "北美洲"
-        item["incountry"] = "美国"
-        item["type"] = "科学研究"
-        item["url"] = "http://www.undp.org/"
-        item["alljoburl"] = "https://jobs.undp.org/cj_view_jobs.cfm"
-        item["joburl"] = response.url
-        item["describe"] = response.meta["describe"]
-        item["suoshu"] = response.meta["suoshu"]
-        item["applytime"] = response.meta["applytime"]
-        item["linkman"] = response.meta["linkman"]
-        return item'''
 
     def _setitem_noid(self,response):
         '''
@@ -245,12 +442,12 @@ class UNDPjobSpider(scrapy.Spider):
         item["joburl"] = response.url
         item["description"] = response.meta["describe"]
         item["belong"] = response.meta["suoshu"]
-        item["ApplicationDeadline"] = response.meta["applytime"]
+        item["issuedate"] = response.meta["applytime"]
         item["linkman"] = response.meta["linkman"]
+        item["ApplicationDeadline"] = ''
         item["Location"] = ''
         item["PostLevel"] = ''
         item['reference'] = ''
-        item['issuedate'] = ''
         item['responsibilities'] = ''
         item['skill'] = ''
         item['TypeofContract'] = ''

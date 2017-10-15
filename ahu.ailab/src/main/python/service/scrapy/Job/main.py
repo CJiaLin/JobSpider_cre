@@ -66,18 +66,18 @@ if __name__ == "__main__":
     '''
     # startScrapySpider.start('UNDPjob')
 
-    startScrapySpider.start('UNDPjob')
+    # startScrapySpider.start('UNDPjob')
 
     # startScrapySpider.start('ITERjob')
     
     # startScrapySpider.start("ESCIjobs")
 
-    # startScrapySpider.start("OECDjobs")
+    #startScrapySpider.start("OECDjobs")
     # startScrapySpider.start("WIPOleaders")
-    # startScrapySpider.start('UNIDOjob')
+    startScrapySpider.start('UNIDOjob')
     # startScrapySpider.start('UNIDOleader')
 
-    # startScrapySpider.start('UNUjob -o UNUjob.csv')
+    # startScrapySpider.start('UNUjob')
     # startScrapySpider.start('UNUleaders -o UNUleaders.csv')
 
     # startScrapySpider.start('APECleaders -o APECleaders.csv')
