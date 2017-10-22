@@ -18,7 +18,7 @@ logging.config.fileConfig(FileUtil().getLogConfigPath())
 logger = logging.getLogger('ahu')
 
 class CERNjobsSpider(scrapy.Spider):
-    name = 'CERNjobs'
+    name = 'CERNjob'
     start_urls = [
         'http://jobs.web.cern.ch/latest-jobs?page=0',
         'http://jobs.web.cern.ch/latest-jobs?page=1']

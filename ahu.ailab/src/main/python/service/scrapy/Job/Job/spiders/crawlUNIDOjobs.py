@@ -98,13 +98,18 @@ class UNIDOjobLink(scrapy.Spider):
             elif target == 'Qualification requirements:' or target == 'Qualification requirements: ':
                 num2 = num
                 for content in main_content[num2:]:
-                    test = content.xpath('text()').extract()[0]
-                    if 'Education' in test:
-                        item['education'] = test
-                    elif 'Experience' in test:
-                        item['experience'] = test
-                    elif 'Language' in test:
-                        item['language'] = test
+                    try:
+                        test = content.xpath('text()').extract()[0]
+                        if 'Education' in test or 'Academic' in test:
+                            item['education'] = test
+                        elif 'Experience' in test:
+                            item['experience'] = test
+                        elif 'Language' in test:
+                            item['language'] = test
+                        else:
+                            item['skill'] += test
+                    except:
+                        pass
                 break
             else:
                 try:
@@ -124,21 +129,20 @@ class UNIDOjobLink(scrapy.Spider):
         itemname= 'addition'
         item[itemname] = StrUtil.delWhiteSpace(tips)
         logger.debug("UNIDO-->job-->%s" % url + '-->' + itemname + '-->' + item[itemname])
-        print item
         yield item
 
     def duepdf(self, response):
         url = response.url
-        items = self._inititem()
-        items['joburl'] = url
+        item = self._inititem()
+        item['joburl'] = url
         if url.endswith('.pdf'):
             PDF_name = url.split('/')[-1]
-            items['work'] = StrUtil.delWhiteSpace(PDF_name)
-            logger.debug("UNIDO-->job-->%s" % items['work'])
-            yield Request(url, meta={'items': items}, callback=self.savepdf, dont_filter=True)
+            item['work'] = StrUtil.delWhiteSpace(PDF_name)
+            logger.debug("UNIDO-->job-->%s" % item['work'])
+            yield Request(url, meta={'items': item}, callback=self.savepdf, dont_filter=True)
         else:
-            items['addition'] = StrUtil.delWhiteSpace(url)
-        yield items
+            item['addition'] = StrUtil.delWhiteSpace(url)
+        yield item
 
     def savepdf(self, response):
         items = response.meta['items']

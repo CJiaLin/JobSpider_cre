@@ -10,6 +10,7 @@ import scrapy
 from scrapy import signals
 from scrapy.xlib.pydispatch import dispatcher
 from bs4 import BeautifulSoup
+from ..allitems.jobitems import AllJobs
 from src.main.python.service.scrapy.Job.Job.utils.FileUtil import FileUtil
 import logging.config
 from scrapy.http import Request
@@ -55,15 +56,15 @@ class ESCIjobsSpider(scrapy.Spider):
             item['position'] = tds[2].xpath('text()').extract()[0]
             item['date'] = tds[3].xpath('text()').extract()[0]
             # print item['companyname']
-            if item['companyname'] == '欧洲核子研究组织':
+            if item['belong'] == '欧洲核子研究组织':
                 yield Request(url=self.url+link, callback=self.parseCERN, meta={
                     'item': item
                 })
-            elif item['companyname'] == '联合国大学':
+            elif item['belong'] == '联合国大学':
                 yield Request(url=self.url+link, callback=self.parseUNU, meta={
                     'item': item
                 })
-            elif item['companyname'] == '国际热核聚变实验堆计划':
+            elif item['belong'] == '国际热核聚变实验堆计划':
                 yield Request(url=self.url+link, callback=self.parseITER, 
                 meta={
                     'item': item
@@ -83,13 +84,13 @@ class ESCIjobsSpider(scrapy.Spider):
         # print item['jobname']
         selector = scrapy.Selector(response)
         con = selector.xpath("//div[@class='views-row views-row-1 views-row-odd views-row-first views-row-last']")
-        item['Job description'] = " ".join(con[0].xpath("div[@class='views-field views-field-field-job-descr']/div/p/text()").extract())
-        item['Job reference'] = " ".join(con[0].xpath("span[@class='views-field views-field-field-job-ref']/span[@class='field-content']/text()").extract())
-        item['Publication date'] = " ".join(con[0].xpath("div[@class='views-field views-field-field-job-pub-date']/div/span/text()").extract())
-        item['closing date'] = " ".join(con[0].xpath("div[@class='views-field views-field-field-job-date-closed']/div/span/text()").extract())
+        item['description'] = " ".join(con[0].xpath("div[@class='views-field views-field-field-job-descr']/div/p/text()").extract())
+        item['reference'] = " ".join(con[0].xpath("span[@class='views-field views-field-field-job-ref']/span[@class='field-content']/text()").extract())
+        item['issuedate'] = " ".join(con[0].xpath("div[@class='views-field views-field-field-job-pub-date']/div/span/text()").extract())
+        item['ApplicationDeadline'] = " ".join(con[0].xpath("div[@class='views-field views-field-field-job-date-closed']/div/span/text()").extract())
         item['Introduction'] = " ".join(con[0].xpath("div[@class='views-field views-field-field-job-intro-en']/div//p/text()").extract())
         item['Functions'] = " ".join(con[0].xpath("div[@class='views-field views-field-field-job-function-en']/div/ul//li/text()").extract())
-        item['Qualification required'] = " ".join(con[0].xpath("div[@class='views-field views-field-field-job-qualification-en']/div//p/text()").extract())
+        #item['Qualification required'] = " ".join(con[0].xpath("div[@class='views-field views-field-field-job-qualification-en']/div//p/text()").extract())
         item['Experience and competencies'] =  " ".join(con[0].xpath("div[@class='views-field views-field-field-job-experience-en']/div/text()").extract())
         item['Eligibility conditions'] = " ".join(con[0].xpath("div[@class='views-field views-field-field-job-eligibility-en']/div//p/text()").extract())
         item['Note on Employment Conditions'] = " ".join(con[0].xpath("div[@class='views-field views-field-field-job-empl-cond-en']/div/text()").extract())
@@ -173,8 +174,8 @@ class ESCIjobsSpider(scrapy.Spider):
 
     
     def _initItem(self, item):
-        item = {}
-        item['Job description'] = ""
+        item = AllJobs()
+        '''item['Job description'] = ""
         item['Job reference'] = ""
         item['Publication date'] = ""
         item['closing date'] = ""
@@ -205,7 +206,36 @@ class ESCIjobsSpider(scrapy.Spider):
         item['Duration of contract'] = ""
         item['Starting date'] = ""
         item['context'] = ""
-        item['Job summary'] = ""
+        item['Job summary'] = ""'''
 
+        item["englishname"] = ''
+        item["chinesename"] = ''
+        item["incontinent"] = ''
+        item["incountry"] = ''
+        item["type"] = ''
+        item["url"] = ''
+        item["alljoburl"] = ''
+        item['description'] = ''
+        item['joburl'] = ''
+        item['work'] = ''
+        item['reference'] = ''
+        item['issuedate'] = ''
+        item['ApplicationDeadline'] = ''
+        item['responsibilities'] = ''
+        item['skill'] = ''
+        item['PostLevel'] = ''
+        item['belong'] = ''
+        item['TypeofContract'] = ''
+        item['language'] = ''
+        item['contracttime'] = ''
+        item['ExpectedDurationofAssignment'] = ''
+        item['linkman'] = ''
+        item['Location'] = ''
+        item['full_time'] = ''
+        item['treatment'] = ''
+        item['education'] = ''
+        item['addition'] = ''
+        item['experience'] = ''
+        return item
     def spider_closed(self):
         logger.info('共爬取%d个岗位' % len(self.items))

@@ -64,18 +64,18 @@ if __name__ == "__main__":
     
     ITERjob         爬取ITER岗位
     '''
-    # startScrapySpider.start('UNDPjob')
+    #startScrapySpider.start('UNDPjob')
 
-    # startScrapySpider.start('UNDPjob')
+    # startScrapySpider.start('WIPOjob')
 
     # startScrapySpider.start('ITERjob')
     
-    # startScrapySpider.start("ESCIjobs")
+    # startScrapySpider.start("CERNjob")
 
-    #startScrapySpider.start("OECDjobs")
+    startScrapySpider.start("OECDjobs")
     # startScrapySpider.start("WIPOleaders")
-    startScrapySpider.start('UNIDOjob')
-    # startScrapySpider.start('UNIDOleader')
+    # startScrapySpider.start('UNIDOjob')
+    # startScrapySpider.start('WHOjob')
 
     # startScrapySpider.start('UNUjob')
     # startScrapySpider.start('UNUleaders -o UNUleaders.csv')

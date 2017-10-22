@@ -131,38 +131,40 @@ class UNDPjobSpider(scrapy.Spider):
         trs1 = job.xpath('//div[@id="content-main"]/table[1]//tr')
         #trs2 = job.xpath('//div[@id="content-main"]/table[1]/tr')
 
-        item['work'] = trs1.xpath('td/h3/text()').extract()[0]
-        for i in trs1:
-            try:
-                tag = i.xpath('td/strong/text()').extract()
-                if tag != []:
-                    tag = tag[0]
-                else:
+        try:
+            item['work'] = trs1.xpath('td/h3/text()').extract()[0]
+            for i in trs1:
+                try:
+                    tag = i.xpath('td/strong/text()').extract()
+                    if tag != []:
+                        tag = tag[0]
+                    else:
+                        continue
+
+                    text = i.xpath('td[2]/text()').extract()
+                    if text != []:
+                        text = text[0]
+                    else:
+                        continue
+
+                    if 'Location' in tag:
+                        item['Location'] = text
+                    elif 'Application Deadline' in tag:
+                        item['ApplicationDeadline'] = text
+                    #elif 'Additional Category' in tag:
+                        #item['type'] = text
+                    elif 'Type of Contract' in tag:
+                        item['TypeofContract'] = text
+                    elif 'Post Level' in tag:
+                        item['PostLevel'] = text
+                    #elif 'Languages Required' in tag:
+                        #item['language'] = text
+                    elif 'Duration of Initial Contract' in tag:
+                        item['contracttime'] = text
+                except:
                     continue
-
-                text = i.xpath('td[2]/text()').extract()
-                if text != []:
-                    text = text[0]
-                else:
-                    continue
-
-                if 'Location' in tag:
-                    item['Location'] = text
-                elif 'Application Deadline' in tag:
-                    item['ApplicationDeadline'] = text
-                #elif 'Additional Category' in tag:
-                    #item['type'] = text
-                elif 'Type of Contract' in tag:
-                    item['TypeofContract'] = text
-                elif 'Post Level' in tag:
-                    item['PostLevel'] = text
-                #elif 'Languages Required' in tag:
-                    #item['language'] = text
-                elif 'Duration of Initial Contract' in tag:
-                    item['contracttime'] = text
-            except:
-                continue
-
+        except:
+            pass
         '''for tr in trs2:
             ziduanming = tr.xpath('td[1]/strong/text()').extract()
             if ziduanming:
@@ -286,14 +288,6 @@ class UNDPjobSpider(scrapy.Spider):
 
                 item['addition'] = info3[-1]
 
-        '''for i in range(0,len(skilldatas),1):
-            name = skilldatas[i].xpath('td[@class="field"]/h5/text()').extract()
-            if name:
-                if name[0] in self.textnfo_noid:
-                    data = skilldatas[i+1].xpath('td[@class="text"]')
-                    info = data.xpath('string(.)').extract()
-                    item[StrUtil.delWhite(name[0])] = StrUtil.delMoreSpace(StrUtil.delWhiteSpace(info[0]))'''
-
 
     def _crawlhaveid(self,response):
         '''
@@ -399,31 +393,6 @@ class UNDPjobSpider(scrapy.Spider):
                         break
             else:
                 i += 1
-
-        '''tds.extend(tds2)
-        tds.append('Disclaimer')
-        temp = []
-        key = 'default'
-        value = ''
-
-        try:
-            for td in tds:
-                # if td:
-                    # print td
-                if td in self.id2field:
-                    value = StrUtil.delMoreSpace(''.join(temp).encode('utf-8'))
-                    try:
-                        item[key] = value
-                    except:
-                        pass
-                    temp = []
-                    key = re.sub('[-& ]', '', td.encode('utf-8'))
-                else:
-                    temp.append(td)
-
-            self.items.append(item)
-        except:
-            logger.error('parser error!')'''
 
 
     def _setitem_noid(self,response):
